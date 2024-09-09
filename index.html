@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hommage</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>En hommage à [Nom de ta grand-mère]</h1>
+        <p>Partagez vos souvenirs et pensées.</p>
+
+        <form id="commentForm">
+            <div class="form-group">
+                <label for="firstName">Prénom :</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Nom :</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="text">Votre commentaire :</label>
+                <textarea id="text" name="text" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="photo">Photo (facultatif) :</label>
+                <input type="file" id="photo" name="photo" accept="image/*">
+            </div>
+            <button type="submit">Poster le commentaire</button>
+        </form>
+
+        <h2>Commentaires</h2>
+        <div id="commentsSection">
+            <p>Chargement des commentaires...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

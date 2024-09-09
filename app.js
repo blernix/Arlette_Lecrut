@@ -5,8 +5,10 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 
 // Middleware pour parser le JSON et les formulaires
 app.use(express.json());
@@ -48,27 +50,28 @@ app.post('/comment', upload.single('photo'), async (req, res) => {
     const { firstName, lastName, text } = req.body;
     let photoUrl = null;
 
-    // Vérifie si une photo est présente, et si oui, la télécharge sur Cloudinary
+    // Vérification et upload de la photo sur Cloudinary
     if (req.file) {
         try {
             const result = await cloudinary.uploader.upload(req.file.path, {
-                folder: 'recueil_photos', // Crée un dossier spécifique dans Cloudinary
+                folder: 'recueil_photos',
             });
-            photoUrl = result.secure_url; // Récupère l'URL sécurisée de l'image
-            // Supprime le fichier local après l'upload
-            fs.unlinkSync(req.file.path);
+            photoUrl = result.secure_url;
+            fs.unlinkSync(req.file.path); // Supprimer le fichier local après upload
         } catch (error) {
-            return res.status(500).json({ error: 'Erreur lors de l\'upload de l\'image' });
+            console.error('Erreur Cloudinary:', error);
+            return res.status(500).json({ error: 'Erreur lors du téléchargement de la photo.' });
         }
     }
 
-    // Création du nouveau commentaire
+    // Ajout du commentaire à la base de données
     const newComment = new Comment({ firstName, lastName, text, photo: photoUrl });
     try {
         await newComment.save();
-        res.status(201).json({ message: 'Commentaire ajouté avec succès', comment: newComment });
+        return res.status(201).json({ message: 'Commentaire ajouté avec succès' });
     } catch (error) {
-        res.status(500).json({ error: 'Erreur lors de l\'ajout du commentaire' });
+        console.error('Erreur MongoDB:', error);
+        return res.status(500).json({ error: 'Erreur lors de l\'ajout du commentaire.' });
     }
 });
 
@@ -76,7 +79,10 @@ app.post('/comment', upload.single('photo'), async (req, res) => {
 app.get('/comments', async (req, res) => {
     try {
         const comments = await Comment.find().sort({ createdAt: -1 });
-        res.json(comments);
+        if (comments.length === 0) {
+            return res.status(200).json({ message: 'Aucun commentaire pour le moment', comments: [] });
+        }
+        res.status(200).json(comments);
     } catch (error) {
         res.status(500).json({ error: 'Erreur lors de la récupération des commentaires' });
     }
