@@ -43,7 +43,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Connexion à MongoDB
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_URL);
 
 // Modèle pour les commentaires
 const commentSchema = new mongoose.Schema({
