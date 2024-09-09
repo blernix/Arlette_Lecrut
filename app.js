@@ -8,7 +8,14 @@ const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: 'http://127.0.0.1:5500',  // Autorise uniquement les requêtes venant de cette origine
+    methods: ['GET', 'POST'],          // Autorise uniquement les méthodes GET et POST
+    allowedHeaders: ['Content-Type']   // Autorise uniquement les en-têtes spécifiques
+}));
+
+app.options('*', cors());
+
 
 // Middleware pour parser le JSON et les formulaires
 app.use(express.json());
@@ -24,10 +31,13 @@ cloudinary.config({
 // Configuration de multer pour stocker temporairement les fichiers
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+        console.log('Chemin de destination du fichier : ', path.resolve('uploads/'));
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Garde le format du fichier
+        const filePath = Date.now() + path.extname(file.originalname);
+        console.log('Nom du fichier généré : ', filePath);
+        cb(null, filePath); // Garde le format du fichier
     }
 });
 const upload = multer({ storage });
@@ -47,31 +57,52 @@ const Comment = mongoose.model('Comment', commentSchema);
 
 // POST - Ajouter un commentaire
 app.post('/comment', upload.single('photo'), async (req, res) => {
+    console.log("Requête reçue"); // Log pour voir si la requête est reçue
     const { firstName, lastName, text } = req.body;
     let photoUrl = null;
 
-    // Vérification et upload de la photo sur Cloudinary
+    // Vérifie si une photo est présente, et si oui, la télécharge sur Cloudinary
     if (req.file) {
+        console.log("Fichier reçu: ", req.file.path); // Log le chemin du fichier
         try {
             const result = await cloudinary.uploader.upload(req.file.path, {
                 folder: 'recueil_photos',
             });
             photoUrl = result.secure_url;
-            fs.unlinkSync(req.file.path); // Supprimer le fichier local après upload
+            console.log('Photo uploadée sur Cloudinary, URL: ', photoUrl);
+
+            // Vérification de l'existence du fichier avant suppression
+            fs.access(req.file.path, fs.constants.F_OK, (err) => {
+                if (err) {
+                    console.error('Le fichier n\'existe pas, impossible de le supprimer:', err);
+                } else {
+                    console.log('Le fichier existe, suppression en cours:', req.file.path);
+
+                    // Supprimer le fichier local
+                    fs.unlink(req.file.path, (err) => {
+                        if (err) {
+                            console.error('Erreur lors de la suppression du fichier local:', err);
+                        } else {
+                            console.log('Fichier local supprimé avec succès');
+                        }
+                    });
+                }
+            });
         } catch (error) {
-            console.error('Erreur Cloudinary:', error);
-            return res.status(500).json({ error: 'Erreur lors du téléchargement de la photo.' });
+            console.error('Erreur lors de l\'upload Cloudinary:', error);
+            return res.status(500).json({ error: 'Erreur lors de l\'upload de l\'image' });
         }
     }
 
-    // Ajout du commentaire à la base de données
+    // Création du nouveau commentaire
     const newComment = new Comment({ firstName, lastName, text, photo: photoUrl });
     try {
         await newComment.save();
-        return res.status(201).json({ message: 'Commentaire ajouté avec succès' });
+        console.log("Commentaire ajouté à MongoDB");
+        res.status(201).json({ message: 'Commentaire ajouté avec succès', comment: newComment });
     } catch (error) {
         console.error('Erreur MongoDB:', error);
-        return res.status(500).json({ error: 'Erreur lors de l\'ajout du commentaire.' });
+        res.status(500).json({ error: 'Erreur lors de l\'ajout du commentaire' });
     }
 });
 
@@ -79,10 +110,7 @@ app.post('/comment', upload.single('photo'), async (req, res) => {
 app.get('/comments', async (req, res) => {
     try {
         const comments = await Comment.find().sort({ createdAt: -1 });
-        if (comments.length === 0) {
-            return res.status(200).json({ message: 'Aucun commentaire pour le moment', comments: [] });
-        }
-        res.status(200).json(comments);
+        res.json(comments);
     } catch (error) {
         res.status(500).json({ error: 'Erreur lors de la récupération des commentaires' });
     }

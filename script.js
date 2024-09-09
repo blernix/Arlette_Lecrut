@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fonction pour charger les commentaires
     function loadComments() {
-        fetch('http://127.0.0.1:3000/comments') // Assure-toi que le backend est sur la même URL
+        fetch('http://127.0.0.1:3000/comments') // Backend sur le port 3000
             .then(response => response.json())
             .then(data => {
                 commentsSection.innerHTML = ''; // Vider la section avant de la remplir
@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => {
                 commentsSection.innerHTML = '<p>Erreur lors du chargement des commentaires.</p>';
+                console.error('Erreur lors de la récupération des commentaires:', error);
             });
     }
 
@@ -37,18 +38,23 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
     
         const formData = new FormData(commentForm);
-        fetch('http://127.0.0.1:3000/comment', {  // Backend sur port 3000
+        fetch('http://127.0.0.1:3000/comment', {  // Backend sur le port 3000
             method: 'POST',
             body: formData
         })
-        .then(response => {
+        .then(async response => {
+            console.log('Statut de la réponse:', response.status); // Affiche le statut HTTP pour le débogage
+    
+            // Si la réponse n'est pas OK, essaye de récupérer l'erreur exacte
             if (!response.ok) {
-                // Si la réponse n'est pas "OK", on gère l'erreur
-                throw new Error('Erreur lors de l\'ajout du commentaire.');
+                const errorText = await response.text(); // Tente de lire la réponse texte brute
+                throw new Error(`Erreur lors de l'ajout du commentaire. Statut: ${response.status}, Détails: ${errorText}`);
             }
-            return response.json();
+    
+            return response.json(); // Assure-toi que le serveur renvoie bien un JSON
         })
         .then(data => {
+            console.log('Réponse du serveur:', data); // Log de la réponse pour déboguer
             if (data.message) {
                 alert(data.message);
                 loadComments(); // Recharger les commentaires après soumission
@@ -56,8 +62,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(error => {
-            // Gestion d'erreur uniquement si une vraie erreur survient
-            alert(error.message);
+            console.error('Erreur attrapée dans le catch:', error.message); // Affiche l'erreur
+            alert('Erreur lors de l\'ajout du commentaire.');
         });
     });
+    
 });
