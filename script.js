@@ -61,10 +61,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 commentForm.reset(); // Réinitialiser le formulaire
             }
         })
-        .catch(error => {
-            console.error('Erreur attrapée dans le catch:', error.message); // Affiche l'erreur
-            alert('Erreur lors de l\'ajout du commentaire.');
-        });
+        // .catch(error => {
+        //     console.error('Erreur attrapée dans le catch:', error.message); // Affiche l'erreur
+        //     alert('Erreur lors de l\'ajout du commentaire.');
+        //     loadComments();
+        // });
     });
     
 });
