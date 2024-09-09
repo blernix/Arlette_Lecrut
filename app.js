@@ -20,6 +20,7 @@ app.options('*', cors());
 // Middleware pour parser le JSON et les formulaires
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configuration de Cloudinary
 cloudinary.config({
