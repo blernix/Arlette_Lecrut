@@ -8,10 +8,19 @@ const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
+const allowedOrigins = ['http://127.0.0.1:5500', 'https://arlette-lecrut.vercel.app'];
+
 app.use(cors({
-    origin: 'http://127.0.0.1:5500',  // Autorise uniquement les requêtes venant de cette origine
-    methods: ['GET', 'POST'],          // Autorise uniquement les méthodes GET et POST
-    allowedHeaders: ['Content-Type']   // Autorise uniquement les en-têtes spécifiques
+    origin: function (origin, callback) {
+        // Si l'origine est dans la liste des origines autorisées ou si elle est absente (comme dans les requêtes locales avec Postman)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Non autorisé par la politique CORS'));
+        }
+    },
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
 }));
 
 app.options('*', cors());
