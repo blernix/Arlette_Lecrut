@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@100..900&display=swap');
+
+
+
 * {
     margin: 0;
     padding: 0;
@@ -5,24 +9,47 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Georgia', serif;
+    background-color: #f3f4f6; /* Gris clair très doux */
     color: #333;
     padding: 20px;
+    line-height: 1.6;
 }
 
+/* Container principal avec une couleur de fond plus douce */
 .container {
     max-width: 800px;
     margin: 0 auto;
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+    background-color: #fdfdfd; /* Blanc cassé pour adoucir le contraste */
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid #d3d3d3; /* Gris clair pour le bord */
 }
 
+/* Modification des titres pour un style plus doux */
 h1, h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    color: #4a4a4a; /* Gris foncé pour les titres */
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #2c3e50; /* Bleu-gris doux */
+}
+
+h2 {
+    font-size: 1.75rem;
+    color: #34495e; /* Gris-bleu élégant */
+}
+
+/* Texte centré avec une touche de chaleur */
+p {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #666; /* Gris un peu plus doux pour le texte */
 }
 
 form {
@@ -30,51 +57,237 @@ form {
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #4c4c4c;
 }
 
 input[type="text"],
 textarea {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 1.1rem;
 }
 
 input[type="file"] {
     padding: 10px;
+    font-size: 1.1rem;
 }
 
 button {
-    background-color: #5cb85c;
+    background-color: #2980b9;
     color: white;
-    padding: 10px 15px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 1.1rem;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #4cae4c;
+    background-color: #3498db;
 }
 
 #commentsSection {
-    margin-top: 20px;
+    margin-top: 40px;
 }
 
 .comment {
-    background-color: #e9ecef;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 15px;
+    background-color: #f7f7f7; /* Gris très clair pour différencier les sections */
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 6px solid #2980b9; /* Bleu classique pour la touche élégante */
+    position: relative;
+    text-align: center;
 }
 
-.comment img {
-    max-width: 100px;
+.comment h3 {
     margin-bottom: 10px;
+    color: #34495e;
+}
+
+.comment p {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* Centrer l'image sous le texte */
+.comment img {
+    max-width: 120px;
+    height: auto;
+    margin: 20px auto 10px;
+    display: block;
+    border-radius: 8px;
+}
+
+/* Positionner la date en bas à droite */
+.comment small {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: #888;
+}
+
+
+.lightbox-img {
+    max-width: 50vw;  /* Limiter la largeur à 80% de la fenêtre */
+    max-height: 50vh; /* Limiter la hauteur à 80% de la fenêtre */
+    object-fit: contain; /* Maintenir les proportions sans étirement */
+}
+
+
+
+.tribute-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.tribute-photo {
+    max-width: 70%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tribute-text {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #555;
+    line-height: 1.6;
+    font-style: italic;
+}
+
+input[type="file"] {
+    display: none; /* On cache le bouton original */
+}
+
+/* Créer un bouton personnalisé pour l'ajout de fichier */
+.custom-file-upload {
+    background-color: #2980b9;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-align: center;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: #3498db;
+}
+
+
+/* Responsive design pour écrans de 768px et moins */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 1.1rem;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input[type="text"],
+    textarea {
+        padding: 10px;
+        font-size: 1rem;
+    }
+
+    button {
+        padding: 10px 15px;
+        font-size: 1rem;
+    }
+
+    .comment {
+        padding: 15px;
+    }
+
+    .comment h3 {
+        font-size: 1.2rem;
+    }
+
+    .comment p {
+        font-size: 1rem;
+    }
+
+    .comment img {
+        max-width: 100px;
+    }
+
+    .tribute-photo {
+        max-width: 90%;
+    }
+
+    .tribute-text {
+        font-size: 1.1rem;
+    }
+}
+
+/* Responsive design pour écrans de 480px et moins */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+
+    input[type="text"],
+    textarea {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .comment h3 {
+        font-size: 1.1rem;
+    }
+
+    .comment p {
+        font-size: 0.9rem;
+    }
+
+    .comment img {
+        max-width: 80px;
+    }
+
+    .tribute-photo {
+        max-width: 100%;
+    }
+
+    .tribute-text {
+        font-size: 1rem;
+    }
 }

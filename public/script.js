@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fonction pour charger les commentaires
     function loadComments() {
-        fetch('/comments') // Backend sur le port 3000
+        fetch('http://127.0.0.1:3000/comments')
             .then(response => response.json())
             .then(data => {
-                commentsSection.innerHTML = ''; // Vider la section avant de la remplir
+                commentsSection.innerHTML = '';
                 if (data.length > 0) {
                     data.forEach(comment => {
                         const commentDiv = document.createElement('div');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         commentDiv.innerHTML = `
                             <h3>${comment.firstName} ${comment.lastName}</h3>
                             <p>${comment.text}</p>
-                            ${comment.photo ? `<img src="${comment.photo}" alt="Photo de ${comment.firstName}">` : ''}
+                            ${comment.photo ? `<a href="${comment.photo}" data-lightbox="comment-photos" data-title="Photo de ${comment.firstName}"><img class="lightbox-img" src="${comment.photo}" alt="Photo de ${comment.firstName}"></a>` : ''}
                             <small>Posté le ${new Date(comment.createdAt).toLocaleDateString()}</small>
                         `;
                         commentsSection.appendChild(commentDiv);
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
     
         const formData = new FormData(commentForm);
-        fetch('/comment', {  // Backend sur le port 3000
+        fetch('http://127.0.0.1:3000/comment', {  // Backend sur le port 3000
             method: 'POST',
             body: formData
         })
