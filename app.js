@@ -1,14 +1,19 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const cors = require('cors');
 
 const app = express();
-const allowedOrigins = ['http://127.0.0.1:5500', 'https://arlette-lecrut.vercel.app'];
+
+// Liste des origines autorisées
+const allowedOrigins = [
+    'http://127.0.0.1:5500',
+    'https://arlette-lecrut.vercel.app'
+];
 
 app.use(cors({
     origin: function (origin, callback) {
@@ -23,8 +28,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type']
 }));
 
-app.options('*', cors());
-
+app.options('*', cors()); // Activer les options pré-vol CORS pour toutes les routes
 
 // Middleware pour parser le JSON et les formulaires
 app.use(express.json());
@@ -38,22 +42,24 @@ cloudinary.config({
     api_secret: process.env.CLOUD_API_SECRET
 });
 
-// Configuration de multer pour stocker temporairement les fichiers
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        console.log('Chemin de destination du fichier : ', path.resolve('uploads/'));
-        cb(null, 'uploads/');
+// Utilisation de multer-storage-cloudinary pour stocker directement sur Cloudinary
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'recueil_photos', // Dossier dans Cloudinary
+        format: async (req, file) => 'png', // ou autre format selon vos besoins
+        public_id: (req, file) => Date.now() + '-' + file.originalname
     },
-    filename: (req, file, cb) => {
-        const filePath = Date.now() + path.extname(file.originalname);
-        console.log('Nom du fichier généré : ', filePath);
-        cb(null, filePath); // Garde le format du fichier
-    }
 });
+
 const upload = multer({ storage });
 
 // Connexion à MongoDB
-mongoose.connect(process.env.MONGO_URL);
+mongoose.connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log('Connexion à MongoDB réussie'))
+.catch(err => console.error('Erreur de connexion à MongoDB:', err));
 
 // Modèle pour les commentaires
 const commentSchema = new mongoose.Schema({
@@ -65,43 +71,16 @@ const commentSchema = new mongoose.Schema({
 });
 const Comment = mongoose.model('Comment', commentSchema);
 
-// POST - Ajouter un commentaire
+// POST - Ajouter un commentaire avec photo
 app.post('/comment', upload.single('photo'), async (req, res) => {
-    console.log("Requête reçue"); // Log pour voir si la requête est reçue
+    console.log("Requête reçue");
     const { firstName, lastName, text } = req.body;
     let photoUrl = null;
 
-    // Vérifie si une photo est présente, et si oui, la télécharge sur Cloudinary
+    // Si une photo est présente, multer la télécharge directement sur Cloudinary
     if (req.file) {
-        console.log("Fichier reçu: ", req.file.path); // Log le chemin du fichier
-        try {
-            const result = await cloudinary.uploader.upload(req.file.path, {
-                folder: 'recueil_photos',
-            });
-            photoUrl = result.secure_url;
-            console.log('Photo uploadée sur Cloudinary, URL: ', photoUrl);
-
-            // Vérification de l'existence du fichier avant suppression
-            fs.access(req.file.path, fs.constants.F_OK, (err) => {
-                if (err) {
-                    console.error('Le fichier n\'existe pas, impossible de le supprimer:', err);
-                } else {
-                    console.log('Le fichier existe, suppression en cours:', req.file.path);
-
-                    // Supprimer le fichier local
-                    fs.unlink(req.file.path, (err) => {
-                        if (err) {
-                            console.error('Erreur lors de la suppression du fichier local:', err);
-                        } else {
-                            console.log('Fichier local supprimé avec succès');
-                        }
-                    });
-                }
-            });
-        } catch (error) {
-            console.error('Erreur lors de l\'upload Cloudinary:', error);
-            return res.status(500).json({ error: 'Erreur lors de l\'upload de l\'image' });
-        }
+        photoUrl = req.file.path;  // multer-storage-cloudinary renvoie le chemin sécurisé
+        console.log('Photo uploadée sur Cloudinary, URL: ', photoUrl);
     }
 
     // Création du nouveau commentaire
