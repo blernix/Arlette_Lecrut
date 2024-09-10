@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fonction pour charger les commentaires
     function loadComments() {
-        fetch('http://127.0.0.1:3000/comments')
+        fetch('/comments')
             .then(response => response.json())
             .then(data => {
                 commentsSection.innerHTML = '';
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
     
         const formData = new FormData(commentForm);
-        fetch('http://127.0.0.1:3000/comment', {  // Backend sur le port 3000
+        fetch('/comment', {  // Backend sur le port 3000
             method: 'POST',
             body: formData
         })
